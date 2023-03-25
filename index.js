@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
@@ -17,19 +17,89 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 async function run() {
     try {
-        const cardDataCollection = client.db('oneTravelAgent').collection('cardData');
-        const userReviewCollection = client.db('oneTravelAgent').collection('userReview');
+        const bannerData = client.db('oneTravelAgent').collection('bannerData');
+        const cardData = client.db('oneTravelAgent').collection('cardData');
+        const teamData = client.db('oneTravelAgent').collection('teamData');
+        const userReview = client.db('oneTravelAgent').collection('userReview');
+        const userData = client.db('oneTravelAgent').collection('userData');
+
+        app.get('/bannerData', async (req, res) => {
+            const query = {};
+            const options = await bannerData.find(query).toArray();
+            res.send(options)
+        });
+
+        app.get('/teamData', async (req, res) => {
+            const query = {};
+            const options = await teamData.find(query).toArray();
+            res.send(options)
+        });
+
+        // app.put('/bannerData/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const jahid = req.body;
+        //     console.log(jahid)
+        //     const filter = { _id: ObjectId(id) }
+        //     console.log(filter)
+        //     const options = { upsert: true }
+        //     const updatedBanner = {
+        //         $set: {
+        //             text1: jahid
+        //         }
+        //     }
+        //     const result = await bannerData.updateOne(filter, jahid, options)
+        //     res.send('yes')
+
+        // });
+
+
+        app.put('/bannerData/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const banner = req.body
+            const options = { upsert: true }
+            const updatedBanner = {
+                $set: {
+                    ...banner
+                    // text1: banner.text1
+                }
+            }
+            const result = await bannerData.updateOne(filter, updatedBanner, options)
+            res.send(result)
+
+        })
 
         app.get('/islandData', async (req, res) => {
             const query = {};
-            const data = await cardDataCollection.find(query, { name: 1, _id: 0 }).sort({ "name": 1 }).toArray();
+            const data = await cardData.find(query, { name: 1, _id: 0 }).sort({ "name": 1 }).toArray();
             res.send(data)
         })
 
         app.get('/userReview', async (req, res) => {
             const query = {};
-            const data = await userReviewCollection.find(query).toArray();
+            const data = await userReview.find(query).toArray();
             res.send(data)
+        });
+
+        app.get('/userData', async (req, res) => {
+            const query = {};
+            const options = await userData.find(query).toArray();
+            res.send(options)
+        });
+
+        app.post('/userData', async (req, res) => {
+            const user = req.body;
+            const email = user.email;
+            const query = { email: email };
+            const find = await userData.findOne(query);
+            if (find === null) {
+                const insertData = await userData.insertOne(user);
+                res.send(insertData)
+            }
+            else {
+                return console.log('hello');
+            }
+
         })
     }
     finally {
