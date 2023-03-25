@@ -52,6 +52,20 @@ async function run() {
 
         // });
 
+        app.get('/users/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = await userData.findOne(query);
+            res.send({ isAdmin: user?.userType === 'Admin' })
+        })
+
+        app.get('/users/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = await userData.findOne(query);
+            res.send({ isUser: user?.userType === 'User' })
+        })
+
 
         app.put('/bannerData/:id', async (req, res) => {
             const id = req.params.id;
