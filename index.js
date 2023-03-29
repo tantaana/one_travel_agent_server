@@ -18,6 +18,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const bannerData = client.db('oneTravelAgent').collection('bannerData');
+        const bestPackages = client.db('oneTravelAgent').collection('bestPackages');
         const cardData = client.db('oneTravelAgent').collection('cardData');
         const teamData = client.db('oneTravelAgent').collection('teamData');
         const userReview = client.db('oneTravelAgent').collection('userReview');
@@ -26,6 +27,12 @@ async function run() {
         app.get('/bannerData', async (req, res) => {
             const query = {};
             const options = await bannerData.find(query).toArray();
+            res.send(options)
+        });
+
+        app.get('/bestPackages', async (req, res) => {
+            const query = {};
+            const options = await bestPackages.find(query).toArray();
             res.send(options)
         });
 
